@@ -1,0 +1,41 @@
+import redis
+from decimal import Decimal
+
+
+class TSLHandle(redis.Redis):
+    """
+    ### Redis client with added functionalities that are required
+    DB Schema:
+        - last_tsl_id = 11
+        - 1: {id: 1, symbol: "BTCUSDT", follow_percentage: "2.2", amount: "43" }
+        - 2: { symbol: "RUNEUSDT", follow_percentage: "1.2", amount: "13" }
+        - 3: { symbol: "RUNEUSDT", follow_percentage: "4.1", amount: "31" }
+        - "BTCUSDT" : {1} - These values represent the key for the hash
+        - "RUNEUSDT": {2, 3} - same here
+        - live_symbols = { "BTCUSDT", "RUNEUSDT" }
+    """
+
+    def add_tsl(self,*,symbol : str, follow_percentage : Decimal, amount: Decimal):
+        """Adds the tsl data to the db"""
+        # Increments last_tsl_id 
+        # Creates hash with id as key
+        # Stores id in a set with the key symbol , ex: BTCUSDT: {1, }
+
+        last_tsl_id = self.get('last_tsl_id')
+        if last_tsl_id:
+            tsl_id = int(last_tsl_id) + 1
+        else:
+            tsl_id = 0
+
+        with self.pipeline() as pipe:
+            pipe.set('last_tsl_id', tsl_id)
+            pipe.hmset(tsl_id, {
+                'id': tsl_id,
+                'symbol': symbol, #TODO Not really needed, remove after debug
+                'follow_percentage': str(follow_percentage),
+                'amount': str(amount)
+            })
+            pipe.sadd(symbol, tsl_id)
+            pipe.sadd('live_symbols', symbol)
+            pipe.execute()
+
