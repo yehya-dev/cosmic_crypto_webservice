@@ -1,13 +1,14 @@
 from fastapi import FastAPI
-from pydantic import BaseModel
+from pydantic import BaseModel, validator
 from decimal import Decimal
+from redis import Redis
 
 from cosmic_crypto_webservice.message import TSLHandle
 
 
 app = FastAPI()
 tsl_handle_client = TSLHandle()
-
+redis_cli = Redis()
 class TSLData(BaseModel):
     #TODO Provide more information i.e examples
     #TODO Improve type checking and validation
@@ -15,14 +16,36 @@ class TSLData(BaseModel):
     symbol: str
     follow_percentage: Decimal
     amount: Decimal
-    api_key: str
+    cc_api_key: str
+
+    @validator('cc_api_key', pre=True)
+    def api_key_should_be_valid(cls, api_key):
+        if not redis_cli.sismember('api_keys', api_key):
+            raise ValueError('Invalid Api Key')
+        return api_key
+
+class BinanceData(BaseModel):
+
+    binance_api_key: str
+    binance_api_secret: str
+    cc_api_key: str
 
 
-@app.post("/")
+
+@app.post("/add_tsl")
 def trailing_stoploss(tsl_data: TSLData):
     tsl_handle_client.add_tsl(
         symbol=tsl_data.symbol,
         follow_percentage=tsl_data.follow_percentage,
-        amount=tsl_data.amount
+        amount=tsl_data.amount,
+        cc_api_key=tsl_data.cc_api_key
     )
-    return tsl_data
+    return {'status': 'OK'}
+
+
+@app.post("/set_binance_keys")
+def set_binance_keys(binance_data: BinanceData):
+    return binance_data
+
+# TODO : Set api key validation
+# - All data on redis
