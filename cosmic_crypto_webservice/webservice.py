@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware 
+
 from pydantic import BaseModel, validator
 from decimal import Decimal
 from redis import Redis
@@ -9,6 +11,21 @@ from cosmic_crypto_webservice.message import TSLHandle
 app = FastAPI()
 tsl_handle_client = TSLHandle()
 redis_cli = Redis()
+
+
+origins = [
+    "http://localhost:3000",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 class TSLData(BaseModel):
     #TODO Provide more information i.e examples
     #TODO Improve type checking and validation
@@ -29,7 +46,6 @@ class BinanceData(BaseModel):
     binance_api_key: str
     binance_api_secret: str
     cc_api_key: str
-
 
 
 @app.post("/add_tsl")
