@@ -1,5 +1,6 @@
 import redis
 from decimal import Decimal
+from loguru import logger
 
 
 class TSLHandle(redis.Redis):
@@ -22,9 +23,16 @@ class TSLHandle(redis.Redis):
         symbol: str,
         follow_percentage: Decimal,
         amount: Decimal,
-        cc_api_key: str
+        cc_api_key: str,
     ):
-        """Adds the tsl data to the db"""
+        """Adds a tsl into the redis_database
+
+        Args:
+            symbol (str): symbol to trade, ex: BTCUSDT
+            follow_percentage (Decimal): at what percentage to follow the price at
+            amount (Decimal): amount to sell when trigger price is reached
+            cc_api_key (str): api_key of the user
+        """
         # Increments last_tsl_id
         # Creates hash with id as key
         # Stores id in a set with the key symbol , ex: BTCUSDT: {1, }
@@ -50,3 +58,4 @@ class TSLHandle(redis.Redis):
             pipe.sadd(symbol, tsl_id)
             pipe.sadd("live_symbols", symbol)
             pipe.execute()
+            logger.info(f"Added TSL : {tsl_id} to redis")
