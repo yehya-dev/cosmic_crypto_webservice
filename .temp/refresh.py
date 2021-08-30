@@ -1,7 +1,7 @@
 from redis import Redis
 
 api_key = "d8817d86-1e82-433f-88ce-b22f81255d14"
-client = Redis()
+client = Redis(db=1)
 client.flushdb()
 print(api_key)
 with client.pipeline() as pipe:

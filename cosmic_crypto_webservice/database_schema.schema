@@ -1,0 +1,67 @@
+# Schema (redis)
+
+"""
+tsl_handle_client
+DB Schema (DB - 0): Function - Store Trailing stop loss data
+    - 1: {id: 1, symbol: "BTCUSDT", follow_percentage: "2.2", amount: "43", cc_api_key: "Hkre2032i350dfddfsdsfa"}
+    - 2: {id: 2, symbol: "RUNEUSDT", follow_percentage: "1.2", amount: "13" cc_api_key: "Hkre2032i350dfddfsdsfa"}
+    - 3: {id: 3, symbol: "RUNEUSDT", follow_percentage: "4.1", amount: "31" cc_api_key: "Hkre2032i350dfddfsdsfa"}
+    - "BTCUSDT" : {1} - These values represent the key for the hash
+    - "RUNEUSDT": {2, 3} - same here
+    - live_symbols : { "BTCUSDT", "RUNEUSDT" }
+"""
+"""
+user_details_client
+DB Schema (DB - 1): Function - Store User Data
+users: {'username1', 'username2', 'username3'}
+username1: {
+    username: str
+    email: Optional[str] = None
+    is_admin: Optional[bool] = False
+    disabled: Optional[bool] = None
+    binance_api_key: Optional[str]
+    binance_api_secret: Optional[str]
+    }
+"""
+"""
+signals_details_client
+DB Schema (DB - 2): Function - Store Sigals available signals data and users related to signals
+spots: {'uniqueid1', 'uniqueid2', 'uniqueid3'}
+signal_execution_enrolled_users: {'username1', 'username2'}
+uniqueid1: {
+    spot_id: str
+    buy_price: Decimal
+    chart_url: Optional[str]
+    created_at: datetime
+    current_price: Optional[Decimal]
+    risk: str  
+    pair: str
+    stop_price: Decimal
+    symbol: str
+    tp1: Decimal
+    tp2: Decimal
+    tp3: Decimal
+    tp_done: int
+    total_tp: int
+    spot_type: str  
+    coin_logo_url: str
+}
+"""
+"""
+exec_signals_client
+DB Schema (DB - 3) : Function - Store the previously executed signals data
+last_exec_id: 3
+unique_spot_id: {exec_id_1, exec_id_2, exec_id_3}
+exec_id_1 : {
+    username:
+    sell_order_id: 
+    quantity:
+    ..
+    ..
+}
+..
+..
+"""
+
+
+
